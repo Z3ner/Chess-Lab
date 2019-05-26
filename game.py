@@ -1,6 +1,12 @@
+from player import *
 import chess
 
 def start_game(player1, player2, period_board = 1, add_pgn = None, verbose = True):
+
+	if type(player1)==str:
+		player1 = HumanPlayer(player1)
+	if type(player2)==str:
+		player2 = HumanPlayer(player2)
 
 	if verbose:
 		print("Game:", player1.name,"vs",player2.name)
@@ -29,6 +35,8 @@ def start_game(player1, player2, period_board = 1, add_pgn = None, verbose = Tru
 			if verbose:
 				print("Move:",move)
 
+		turn += 1
+
 	if verbose:
 		print("###############################################################")
 		print("Game:", player1.name,"vs",player2.name)
@@ -40,6 +48,8 @@ def start_game(player1, player2, period_board = 1, add_pgn = None, verbose = Tru
 
 	return winner(state)
 
+def legal_plays(state):
+		return [str(state.san(move)) for move in state.legal_moves]
 
 def winner(state):
 
