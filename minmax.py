@@ -44,7 +44,7 @@ class BruteForcePlayer(Player):
 
 	__metaclass__ = ABCMeta
 
-	def __init__(self, name, max_time = 2000, max_depth = 2):
+	def __init__(self, name, max_time = 5, max_depth = 2):
 
 		self.name = name
 		self.max_time = max_time
@@ -52,6 +52,9 @@ class BruteForcePlayer(Player):
 		self.root = None
 
 	def move(self, state):
+
+		if state.fullmove_number == 1:
+			self.root = None
 
 		if self.root == None:
 			self.root = Node(self.eval(state), state.turn)
@@ -76,7 +79,7 @@ class BruteForcePlayer(Player):
 		while top_depth <= self.max_depth and self.max_time >= (time() - self.start_time):
 			self.expand_rec(self.root, state, 0, top_depth)
 			top_depth += 1
-			print(time() - self.start_time)
+			#print(time() - self.start_time)
 
 	def expand_rec(self, node, state, depth, top_depth):
 
@@ -139,3 +142,4 @@ class CheckMateBF(BruteForcePlayer):
 
 
 		return checkmate + np.random.uniform(-0.2,0.2) + (get_number_pawns(state, True)*1 + get_number_knights(state, True)*3 + get_number_knights(state, True)*3 + get_number_rocks(state, True)*5 + get_number_queens(state, True)*9) - (get_number_pawns(state, False)*1 + get_number_knights(state, False)*3 + get_number_knights(state, False)*3 + get_number_rocks(state, False)*5 + get_number_queens(state, False)*9)
+
