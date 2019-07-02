@@ -60,7 +60,8 @@ class BruteForcePlayer(Player):
 			self.root = Node(self.eval(state), state.turn)
 		else:
 			move = state.pop()
-			self.root = self.root.children[state.san(move)]	
+			if state.san(move) in self.root.children:
+				self.root = self.root.children[state.san(move)]	
 			state.push_san(state.san(move))
 
 		self.expand_tree(state)

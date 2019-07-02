@@ -2,7 +2,7 @@ from player import *
 import chess
 import numpy as np
 import collections
-
+import math
 
 def start_game(player1, player2, period_board = 1, add_pgn = None, verbose = True):
 
@@ -59,17 +59,14 @@ def tournament(list_players, loops = 2):
 
 	n_players = len(list_players)
 	scores = {}
-	whites = {}
 	swap_players = False
 	change = False
 
 	for player in list_players:
 		if type(player) == str:
 			scores[player] = 0
-			whites[player] = 0
 		else:
 			scores[player.name] = 0
-			whites[player.name] = 0
 
 	for _ in range(loops):
 
@@ -108,19 +105,67 @@ def tournament(list_players, loops = 2):
 				scores[playerB.name] += result - 1
 				scores[playerW.name] += 2 - result
 
-				whites[playerW.name] += 1
-
 		if n_players % 4 == 0 or n_players % 4 == 1:
 			change = change ^ True
 
 	print(scores)
-	print(whites)
 
 	P = collections.namedtuple('P', 'score name')
 	ranking = sorted([P(v,k) for (k,v) in scores.items()], reverse=True)
 
-	print("Winner:", ranking[0].name)
+	print("Winner:", ranking[0].name, "Score:", ranking[0].score)
 
+def swiss_system(list_players, shortcut = False):
+
+	n_players = len(list_players)
+	rounds = math.floor(math.log(n_players,2))
+
+	actual_ranking = [(0, player) for player in list_players]
+
+	for r in range(rounds):
+
+		print("Round ", r + 1, "-", "Participans:", len(actual_ranking))
+		np.random.shuffle(actual_ranking)
+		actual_ranking = sorted(actual_ranking, key=takeFirst, reverse=True)
+
+		if shortcut:
+			score_max, _ = actual_ranking[0]
+			for score, player in actual_ranking:
+				if r < (rounds - 2):
+					if (score_max + (rounds - r)/2) > (score + rounds - r):
+						del actual_ranking[(score, player)]
+				else:
+					if score_max > (score + rounds - r):
+						del actual_ranking[(score, player)]
+					
+
+		for idx in range(0, n_players, 2):
+
+			scoreW, playerW = actual_ranking[idx]
+			scoreB, playerB = actual_ranking[idx + 1]
+
+			if type(playerW)==str:
+				playerW = HumanPlayer(playerW)
+			if type(playerB)==str:
+				playerB = HumanPlayer(playerB)
+
+			result = start_game(playerW, playerB, verbose = False)
+
+			scoreB += result - 1
+			scoreW += 2 - result
+
+			actual_ranking[idx] = (scoreW, playerW)
+			actual_ranking[idx+1] = (scoreB, playerB)
+
+	actual_ranking = sorted(actual_ranking, key=takeFirst, reverse=True)
+	final_score, winner = actual_ranking[0]
+	print("Winner:", winner.name, "Score:", final_score)
+
+	return winner
+
+
+def takeFirst(elem):
+	return elem[0]
 
 
 
